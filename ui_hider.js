@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         UI Hider
-// @version      1.3
+// @version      1.4
 // @description  Hide UI Elements by pressing "+" or "*"
 // @icon         https://raw.githubusercontent.com/shellalliance/shellalliance.github.io/refs/heads/main/icon.png
 // @author       @gamingatmidnight
@@ -33,6 +33,7 @@
             event.preventDefault();
             if (styleElement1.textContent === "") {
                 styleElement1.textContent = cssContent1;
+                document.documentElement.requestFullscreen();
             } else {
                 styleElement1.textContent = "";
             }
@@ -56,6 +57,7 @@ aside {display: none !important;}
             event.preventDefault();
             if (styleElement2.textContent === "") {
                 styleElement2.textContent = cssContent2;
+                document.documentElement.requestFullscreen();
             } else {
                 styleElement2.textContent = "";
             }
