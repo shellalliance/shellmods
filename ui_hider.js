@@ -2,6 +2,7 @@
 // @name         UI Hider
 // @version      1.3
 // @description  Hide UI Elements by pressing "+" or "*"
+// @icon         https://raw.githubusercontent.com/shellalliance/shellalliance.github.io/refs/heads/main/icon.png
 // @author       @gamingatmidnight
 // @match        *://shellshock.io/*
 // @updateURL    https://github.com/shellalliance/shellmods/raw/refs/heads/main/ui_hider.js
