@@ -4,8 +4,8 @@
 // @description  Hide UI Elements by pressing "+" or "*"
 // @author       @gamingatmidnight
 // @match        *://shellshock.io/*
-// @updateURL    https://raw.githubusercontent.com/shellalliance/shellmods/refs/heads/main/ui_hider.js
-// @downloadURL  https://raw.githubusercontent.com/shellalliance/shellmods/refs/heads/main/ui_hider.js
+// @updateURL    https://github.com/shellalliance/shellmods/raw/refs/heads/main/ui_hider.js
+// @downloadURL  https://github.com/shellalliance/shellmods/raw/refs/heads/main/ui_hider.js
 // ==/UserScript==
 
 (function() {
