@@ -43,7 +43,7 @@
 aside {display: none !important;}
 .player-list-wrapper {display: none !important;}
 .pause-ui-element {display: none !important;}
-#killTicker {display: none !important}
+#killTicker {display: none !important;}
 `;
 
     const styleElement2 = document.createElement("style");
