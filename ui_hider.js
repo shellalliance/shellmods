@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         UI Hider
-// @version      1.2
+// @version      1.3
 // @description  Hide UI Elements by pressing "+" or "*"
 // @author       @gamingatmidnight
 // @match        *://shellshock.io/*
