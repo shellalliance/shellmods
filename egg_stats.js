@@ -1,14 +1,11 @@
 // ==UserScript==
 // @name         EggStats
-// @version      1.1
+// @version      1.2
 // @description  Press y to change UI, x to start kill feed, and c to download statistics.
 // @icon         https://shellalliance.github.io/icon.png
 // @author       @gamingatmidnight
-// @match        *://*shellshock*/*
-// @match        *://*eggcombat*/*
-// @match        *://*violentegg*/*
-// @match        *://*scrambled*/*
-// @match        *://*yolk*/*
+// @match        *://*.shellshock.io/*
+// @match        *://*.eggcombat.com/*
 // @updateURL    https://github.com/shellalliance/shellmods/raw/refs/heads/main/egg_stats.js
 // @downloadURL  https://github.com/shellalliance/shellmods/raw/refs/heads/main/egg_stats.js
 // ==/UserScript==
