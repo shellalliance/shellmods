@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EggStats
-// @version      1.2
-// @description  Press y to change UI, x to start kill feed, and c to download statistics.
+// @version      1.3
+// @description  Press y to change UI, x to start statistics tracking, and c to download statistics.
 // @icon         https://shellalliance.github.io/icon.png
 // @author       @gamingatmidnight
 // @match        *://*.shellshock.io/*
@@ -33,6 +33,10 @@ dashboardStyle.innerHTML = `
 		& button.ss_button {
 			width: 100%;
 		}
+		
+		& button.btn_green {
+			letter-spacing: unset;
+		}
 	}
 `;
 
@@ -44,14 +48,16 @@ dashBoard.innerHTML = `
 	<h1>EggStats</h1>
 	<input id="map_name" class="ss_field font-nunito" placeholder="Castle">
 	<button id="create_map" class="ss_button btn_blue bevel_blue">Create Map</button>
-	<input id="webhook_url" class="ss_field font-nunito" placeholder="Discord Webhook URL">
+	<input id="webhook_url" class="ss_field font-nunito" placeholder="Discord Webhook URL" value="${localStorage.getItem('eggstats_webhook_url') || ''}">
 	<button id="track_statistics" class="ss_button btn_green bevel_green">Start Tracking</button>
 	<button id="share_statistics" class="ss_button btn_blue bevel_blue">Download</button>
 	<button id="reset_statistics" class="ss_button btn_yolk bevel_yolk">Reset</button>
 `;
+
 document.body.appendChild(dashBoard);
 
 let tickerObserver = null;
+let messageId = null;
 let webhookUrl;
 let playerStatistics = {};
 let interfaceStyle = 1;
@@ -101,15 +107,51 @@ function trackStatistics() {
 	playerStatistics[killer].kills++;
 	playerStatistics[victim].deaths++;
 
-	fetch(webhookUrl, {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({
-			content: `**${killer}** KILLED **${victim}**`,
-			username: "EggStats",
-			avatar_url: "https://shellalliance.github.io/icon.png",
+	liveStatistics();
+}
+
+async function liveStatistics() {
+	webhookUrl = document.querySelector(`#webhook_url`)?.value || localStorage.getItem(`eggstats_webhook_url`);
+	if (webhookUrl) localStorage.setItem(`eggstats_webhook_url`, webhookUrl);
+	
+	let mapName = clean(document.querySelector(`#serverAndMapInfo > :nth-child(2)`)?.innerText);
+	let serverName = clean(document.querySelector(`#serverAndMapInfo > :nth-child(4)`)?.innerText);
+	let mapCode = document.querySelector(`#shareLinkPopup h1`)?.innerText.toLowerCase();
+
+	let header = `${"PLAYER".padEnd(15)} // ${"KILLS".padEnd(6)} // ${"DEATHS".padEnd(6)} // ${"KDR".padEnd(4)}\n`;
+	let rows = Object.entries(playerStatistics)
+		.sort(([, lower], [, higher]) => higher.kills - lower.kills)
+		.map(([player, statistics]) => {
+			let name = player.padEnd(15).slice(0, 15);
+			let kills = String(statistics.kills).padEnd(6);
+			let deaths = String(statistics.deaths).padEnd(6);
+			let kdr = String((statistics.kills / (statistics.deaths || 1)).toFixed(2)).padEnd(4);
+			return `${name} // ${kills} // ${deaths} // ${kdr}`;
 		})
-	});
+		.join('\n');
+
+	let messagePayload = JSON.stringify({
+		content: `MAP \`${mapName}\`\nSERVER \`${serverName}\`\n## STATISTICS\n\`\`\`\n${header + rows}\n\`\`\``,
+		username: "EggStats",
+		avatar_url: "https://shellalliance.github.io/icon.png",
+	})
+
+	if (messageId) {
+		fetch(`${webhookUrl}/messages/${messageId}`, {
+			method: "PATCH",
+			headers: { "Content-Type": "application/json" },
+			body: messagePayload
+		});
+	} else {
+		let webhookResponse = await fetch(`${webhookUrl}?wait=true`, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: messagePayload
+		});
+
+		let messageData = await webhookResponse.json();
+		messageId = messageData.id;
+	}
 }
 
 function shareStatistics() {
@@ -136,7 +178,7 @@ function shareStatistics() {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({
-			content: `**MAP** \`${mapName}\`\n**SERVER** \`${serverName}\`\n**INVITE** https://shellshock.io/#${mapCode}\n## STATISTICS\n\`\`\`\n${header + rows}\n\`\`\``,
+			content: `MAP \`${mapName}\`\nSERVER \`${serverName}\`\nINVITE [${mapCode}](https://shellshock.io/#${mapCode})\n## STATISTICS\n\`\`\`\n${header + rows}\n\`\`\``,
 			username: "EggStats",
 			avatar_url: "https://shellalliance.github.io/icon.png",
 		})
@@ -145,6 +187,7 @@ function shareStatistics() {
 
 function resetStatistics() {
 	playerStatistics = {};
+	messageId = null;
 	if (tickerObserver) { toggleObserver(); }
 }
 
@@ -173,8 +216,8 @@ function toggleDashboard() {
 		<h1>EggStats</h1>
 		<input id="map_name" class="ss_field font-nunito" placeholder="Castle">
 		<button id="create_map" class="ss_button btn_blue bevel_blue">Create Map</button>
-		<input id="webhook_url" class="ss_field font-nunito" placeholder="Discord Webhook URL">
-		<button id="track_statistics" class="ss_button btn_green bevel_green">Start Tracking</button>
+		<input id="webhook_url" class="ss_field font-nunito" placeholder="Discord Webhook URL" value="${localStorage.getItem('eggstats_webhook_url') || ''}">
+		<button id="track_statistics" class="ss_button ${tickerObserver ? 'btn_red bevel_red' : 'btn_green bevel_green'}">${tickerObserver ? 'Stop Tracking' : 'Start Tracking'}</button>
 		<button id="share_statistics" class="ss_button btn_blue bevel_blue">Download</button>
 		<button id="reset_statistics" class="ss_button btn_yolk bevel_yolk">Reset</button>
 		</div>
