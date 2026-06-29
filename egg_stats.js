@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         EggStats
-// @version      1.3
+// @version      1.5
 // @description  Press y to change UI, x to start statistics tracking, and c to download statistics.
 // @icon         https://shellalliance.github.io/icon.png
 // @author       @gamingatmidnight
@@ -13,7 +13,7 @@
 (function() {
     "use strict";
 
-const dashboardStyle = document.createElement(`style`);
+const dashboardStyle = document.createElement("style");
 document.head.appendChild(dashboardStyle);
 dashboardStyle.innerHTML = `
 	#open_dashboard {
@@ -40,15 +40,16 @@ dashboardStyle.innerHTML = `
 	}
 `;
 
-let dashBoard = document.createElement(`div`);
-dashBoard.id = `eggstats_dashboard`;
+let dashBoard = document.createElement("div");
+dashBoard.id = "eggstats_dashboard";
 dashBoard.className = "popup_window popup_lg roundme_md";
 dashBoard.innerHTML = `
 	<button id="minimize_dashboard" class="popup_close clickme roundme_sm"><i class="fas fa-times text_white fa-2x"></i></button>
 	<h1>EggStats</h1>
 	<input id="map_name" class="ss_field font-nunito" placeholder="Castle">
 	<button id="create_map" class="ss_button btn_blue bevel_blue">Create Map</button>
-	<input id="webhook_url" class="ss_field font-nunito" placeholder="Discord Webhook URL" value="${localStorage.getItem('eggstats_webhook_url') || ''}">
+	<input id="game_title" class="ss_field font-nunito" placeholder="Game Title">
+	<input id="webhook_url" class="ss_field font-nunito" placeholder="Discord Webhook URL" value="${localStorage.getItem("eggstats_webhook_url") || ""}">
 	<button id="track_statistics" class="ss_button btn_green bevel_green">Start Tracking</button>
 	<button id="share_statistics" class="ss_button btn_blue bevel_blue">Download</button>
 	<button id="reset_statistics" class="ss_button btn_yolk bevel_yolk">Reset</button>
@@ -58,46 +59,44 @@ document.body.appendChild(dashBoard);
 
 let tickerObserver = null;
 let messageId = null;
+let gameTitle = null;
 let webhookUrl;
 let playerStatistics = {};
 let interfaceStyle = 1;
 let clean = (string) => string?.trim().normalize().toWellFormed().toUpperCase();
 
 function startListeners() {
-	document.querySelector(`#create_map`)?.addEventListener(`click`, createMap);
-	document.querySelector(`#track_statistics`)?.addEventListener(`click`, toggleObserver);
-	document.querySelector(`#share_statistics`)?.addEventListener(`click`, shareStatistics);
-	document.querySelector(`#reset_statistics`)?.addEventListener(`click`, resetStatistics);
-	document.querySelector(`#minimize_dashboard`)?.addEventListener(`click`, toggleDashboard);
+	document.querySelector("#create_map")?.addEventListener("click", createMap);
+	document.querySelector("#track_statistics")?.addEventListener("click", toggleObserver);
+	document.querySelector("#share_statistics")?.addEventListener("click", shareStatistics);
+	document.querySelector("#reset_statistics")?.addEventListener("click", resetStatistics);
+	document.querySelector("#minimize_dashboard")?.addEventListener("click", toggleDashboard);
 }
 
 function createMap() {
-	let mapName = clean(document.querySelector(`#map_name`)?.value || `castle`);
-	let mapSelector = document.querySelector(`#joinPrivateGamePopup`);
+	let mapName = clean(document.querySelector("#map_name")?.value || "castle");
+	let mapSelector = document.querySelector("#joinPrivateGamePopup");
 	if (!mapSelector) { return; }
 
-	mapSelector.style.display = ``;
-	document.querySelector(`#joinPrivateGamePopup > .popup_close`)?.addEventListener(`click`, () => { mapSelector.style.display = `none`; } );
+	mapSelector.style.display = "";
+	document.querySelector("#joinPrivateGamePopup > .popup_close")?.addEventListener("click", () => { mapSelector.style.display = "none"; } );
 
 	let mapFinder = setInterval(() => {
-		let mapSelected = clean(document.querySelector(`#mapText`)?.innerText);
+		let mapSelected = clean(document.querySelector("#mapText")?.innerText);
 		
 		if (mapSelected === mapName) {
 			clearInterval(mapFinder);
 			
-			setTimeout(() => document.querySelector(`#createPrivateGame > div > div > div > button`)?.click(), 1000);
-			/* setTimeout(() => document.querySelector(`#createPrivateGame > div > div > div > button > div > ul > li:nth-child(3)`)?.click(), 2000); */
-			/* setTimeout(() => document.querySelector(`#createPrivateGame > div > div > div > :nth-last-child(1)`)?.click(), 3000); */
-		} else { document.querySelector(`#mapRight`)?.click(); }
+			setTimeout(() => document.querySelector("#createPrivateGame > div > div > div > button")?.click(), 1000);
+			/* setTimeout(() => document.querySelector("#createPrivateGame > div > div > div > button > div > ul > li:nth-child(3)")?.click(), 2000); */
+			/* setTimeout(() => document.querySelector("#createPrivateGame > div > div > div > :nth-last-child(1)")?.click(), 3000); */
+		} else { document.querySelector("#mapRight")?.click(); }
 	}, 50);
 }
 
 function trackStatistics() {
-	webhookUrl = document.querySelector(`#webhook_url`)?.value || localStorage.getItem(`eggstats_webhook_url`);
-	if (webhookUrl) localStorage.setItem(`eggstats_webhook_url`, webhookUrl);
-
-	let killer = clean(document.querySelector(`#killTicker > :nth-last-child(3)`)?.innerText);
-	let victim = clean(document.querySelector(`#killTicker > :nth-last-child(2)`)?.innerText);
+	let killer = clean(document.querySelector("#killTicker > :nth-last-child(3)")?.innerText);
+	let victim = clean(document.querySelector("#killTicker > :nth-last-child(2)")?.innerText);
 
 	if (!killer || !victim || killer === victim) return;
 
@@ -111,12 +110,14 @@ function trackStatistics() {
 }
 
 async function liveStatistics() {
-	webhookUrl = document.querySelector(`#webhook_url`)?.value || localStorage.getItem(`eggstats_webhook_url`);
-	if (webhookUrl) localStorage.setItem(`eggstats_webhook_url`, webhookUrl);
-	
-	let mapName = clean(document.querySelector(`#serverAndMapInfo > :nth-child(2)`)?.innerText);
-	let serverName = clean(document.querySelector(`#serverAndMapInfo > :nth-child(4)`)?.innerText);
-	let mapCode = document.querySelector(`#shareLinkPopup h1`)?.innerText.toLowerCase();
+	webhookUrl = document.querySelector("#webhook_url")?.value || localStorage.getItem("eggstats_webhook_url");
+	if (webhookUrl) localStorage.setItem("eggstats_webhook_url", webhookUrl);
+
+	gameTitle = clean(document.querySelector("#game_title")?.value);
+
+	let mapName = clean(document.querySelector("#serverAndMapInfo > :nth-child(2)")?.innerText);
+	let serverName = clean(document.querySelector("#serverAndMapInfo > :nth-child(4)")?.innerText);
+	let mapCode = document.querySelector("#shareLinkPopup h1")?.innerText?.toLowerCase();
 
 	let header = `${"PLAYER".padEnd(15)} // ${"KILLS".padEnd(6)} // ${"DEATHS".padEnd(6)} // ${"KDR".padEnd(4)}\n`;
 	let rows = Object.entries(playerStatistics)
@@ -128,10 +129,10 @@ async function liveStatistics() {
 			let kdr = String((statistics.kills / (statistics.deaths || 1)).toFixed(2)).padEnd(4);
 			return `${name} // ${kills} // ${deaths} // ${kdr}`;
 		})
-		.join('\n');
+		.join("\n");
 
 	let messagePayload = JSON.stringify({
-		content: `MAP \`${mapName}\`\nSERVER \`${serverName}\`\n## STATISTICS\n\`\`\`\n${header + rows}\n\`\`\``,
+		content: `# ${gameTitle || "Shell Shockers Game"}\nMAP \`${mapName}\`\nSERVER \`${serverName}\`\n## STATISTICS\n\`\`\`\n${header + rows}\n\`\`\``,
 		username: "EggStats",
 		avatar_url: "https://shellalliance.github.io/icon.png",
 	})
@@ -155,12 +156,14 @@ async function liveStatistics() {
 }
 
 function shareStatistics() {
-	webhookUrl = document.querySelector(`#webhook_url`)?.value || localStorage.getItem(`eggstats_webhook_url`);
-	if (webhookUrl) localStorage.setItem(`eggstats_webhook_url`, webhookUrl);
-	
-	let mapName = clean(document.querySelector(`#serverAndMapInfo > :nth-child(2)`)?.innerText);
-	let serverName = clean(document.querySelector(`#serverAndMapInfo > :nth-child(4)`)?.innerText);
-	let mapCode = document.querySelector(`#shareLinkPopup h1`)?.innerText.toLowerCase();
+	webhookUrl = document.querySelector("#webhook_url")?.value || localStorage.getItem("eggstats_webhook_url");
+	if (webhookUrl) localStorage.setItem("eggstats_webhook_url", webhookUrl);
+
+	gameTitle = clean(document.querySelector("#game_title")?.value);
+
+	let mapName = clean(document.querySelector("#serverAndMapInfo > :nth-child(2)")?.innerText);
+	let serverName = clean(document.querySelector("#serverAndMapInfo > :nth-child(4)")?.innerText);
+	let mapCode = document.querySelector("#shareLinkPopup h1")?.innerText?.toLowerCase();
 
 	let header = `${"PLAYER".padEnd(15)} // ${"KILLS".padEnd(5)} // ${"DEATHS".padEnd(6)} // ${"KDR".padEnd(5)}\n`;
 	let rows = Object.entries(playerStatistics)
@@ -172,13 +175,13 @@ function shareStatistics() {
 			let kdr = String((statistics.kills / (statistics.deaths || 1)).toFixed(2)).padEnd(5);
 			return `${name} // ${kills} // ${deaths} // ${kdr}`;
 		})
-		.join('\n');
+		.join("\n");
 
 	fetch(webhookUrl, {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({
-			content: `MAP \`${mapName}\`\nSERVER \`${serverName}\`\nINVITE [${mapCode}](https://shellshock.io/#${mapCode})\n## STATISTICS\n\`\`\`\n${header + rows}\n\`\`\``,
+			content: `# ${gameTitle || "Shell Shockers Game"}\nMAP \`${mapName}\`\nSERVER \`${serverName}\`\nINVITE [${mapCode}](https://shellshock.io/#${mapCode})\n## STATISTICS\n\`\`\`\n${header + rows}\n\`\`\``,
 			username: "EggStats",
 			avatar_url: "https://shellalliance.github.io/icon.png",
 		})
@@ -193,41 +196,40 @@ function resetStatistics() {
 
 function toggleObserver() {
 	if (!tickerObserver) {
-		let killTicker = document.querySelector(`#killTicker`);
-		document.querySelector(`#track_statistics`).className = `ss_button btn_red bevel_red`;
-		document.querySelector(`#track_statistics`).innerText = `Stop Tracking`;
+		let killTicker = document.querySelector("#killTicker");
+		document.querySelector("#track_statistics").className = "ss_button btn_red bevel_red";
+		document.querySelector("#track_statistics").innerText = "Stop Tracking";
 		tickerObserver = new MutationObserver(trackStatistics);
 		tickerObserver.observe(killTicker, {
 			childList: true
 		});
 	} else {
-		document.querySelector(`#track_statistics`).className = `ss_button btn_green bevel_green`;
-		document.querySelector(`#track_statistics`).innerText = `Start Tracking`;
+		document.querySelector("#track_statistics").className = "ss_button btn_green bevel_green";
+		document.querySelector("#track_statistics").innerText = "Start Tracking";
 		tickerObserver.disconnect();
 		tickerObserver = null;
 	}
 }
 
 function toggleDashboard() {
-	if (document.querySelector(`#open_dashboard`)) {
-		document.querySelector(`#open_dashboard`).outerHTML = `
+	if (document.querySelector("#open_dashboard")) {
+		document.querySelector("#open_dashboard").outerHTML = `
 		<div id="eggstats_dashboard" class="popup_window popup_lg roundme_md">
 		<button id="minimize_dashboard" class="popup_close clickme roundme_sm"><i class="fas fa-times text_white fa-2x"></i></button>
 		<h1>EggStats</h1>
 		<input id="map_name" class="ss_field font-nunito" placeholder="Castle">
 		<button id="create_map" class="ss_button btn_blue bevel_blue">Create Map</button>
-		<input id="webhook_url" class="ss_field font-nunito" placeholder="Discord Webhook URL" value="${localStorage.getItem('eggstats_webhook_url') || ''}">
-		<button id="track_statistics" class="ss_button ${tickerObserver ? 'btn_red bevel_red' : 'btn_green bevel_green'}">${tickerObserver ? 'Stop Tracking' : 'Start Tracking'}</button>
+		<input id="game_title" class="ss_field font-nunito" placeholder="Game Title" value="${gameTitle || ""}">
+		<input id="webhook_url" class="ss_field font-nunito" placeholder="Discord Webhook URL" value="${localStorage.getItem("eggstats_webhook_url") || ""}">
+		<button id="track_statistics" class="ss_button ${tickerObserver ? "btn_red bevel_red" : "btn_green bevel_green"}">${tickerObserver ? "Stop Tracking" : "Start Tracking"}</button>
 		<button id="share_statistics" class="ss_button btn_blue bevel_blue">Download</button>
 		<button id="reset_statistics" class="ss_button btn_yolk bevel_yolk">Reset</button>
 		</div>
 		`;
 		startListeners();
-	} else if (document.querySelector(`#eggstats_dashboard`)) {
-		document.querySelector(`#eggstats_dashboard`).outerHTML = `
-		<img id="open_dashboard" src="https://shellalliance.github.io/icon.png" style="width: 50px; cursor: pointer;" class="clickme" />
-		`
-		document.querySelector(`#open_dashboard`)?.addEventListener(`click`, toggleDashboard);
+	} else if (document.querySelector("#eggstats_dashboard")) {
+		document.querySelector("#eggstats_dashboard").outerHTML = `<img id="open_dashboard" src="https://shellalliance.github.io/icon.png" style="width: 50px; cursor: pointer;" class="clickme" />`
+		document.querySelector("#open_dashboard")?.addEventListener("click", toggleDashboard);
 	}
 }
 
@@ -290,12 +292,12 @@ function toggleInterface() {
 	}
 }
 
-document.addEventListener(`keypress`, (event) => {
-	if ([`INPUT`, `TEXTAREA`, `SELECT`].includes(event.target.tagName)) { return; }
+document.addEventListener("keypress", (event) => {
+	if (["INPUT", "TEXTAREA", "SELECT"].includes(event.target.tagName)) { return; }
 
-	if (event.key.toLowerCase() === `y`) toggleInterface();
-	if (event.key.toLowerCase() === `x`) toggleObserver();
-	if (event.key.toLowerCase() === `c`) shareStatistics();
+	if (event.key.toLowerCase() === "y") toggleInterface();
+	if (event.key.toLowerCase() === "x") toggleObserver();
+	if (event.key.toLowerCase() === "c") shareStatistics();
 });
 
 startListeners();
