@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EggStats
-// @version      2.0
-// @description  Press y to change UI, x to start statistics tracking, and c to download statistics.
+// @version      2.1
+// @description  Press y to change UI, x to start statistics tracking, and c to download statistics. Use ?stats in chat during games to see your statistics.
 // @icon         https://shellalliance.github.io/icon.png
 // @author       @gamingatmidnight
 // @match        *://*.shellshock.io/*
@@ -20,7 +20,7 @@ dashboardStyle.innerHTML = `
 		position: fixed;
 		bottom: 7em;
 		right: 0.5em;
-		z-index: 10000;	
+		z-index: 10000;
 	}
 	#eggstats_dashboard {
 		position: fixed;
@@ -33,7 +33,7 @@ dashboardStyle.innerHTML = `
 		& button.ss_button {
 			width: 100%;
 		}
-		
+
 		& button.btn_green {
 			letter-spacing: unset;
 		}
@@ -85,10 +85,10 @@ function createMap() {
 
 	let mapFinder = setInterval(() => {
 		let mapSelected = clean(document.querySelector("#mapText")?.innerText);
-		
+
 		if (mapSelected === mapName) {
 			clearInterval(mapFinder);
-			
+
 			setTimeout(() => document.querySelector("#createPrivateGame > div > div > div > button")?.click(), 1000);
 			/* setTimeout(() => document.querySelector("#createPrivateGame > div > div > div > button > div > ul > li:nth-child(3)")?.click(), 2000); */
 			/* setTimeout(() => document.querySelector("#createPrivateGame > div > div > div > :nth-last-child(1)")?.click(), 3000); */
@@ -371,7 +371,7 @@ function toggleInterface() {
 				position: fixed;
 				bottom: 7em;
 				right: 0.5em;
-				z-index: 10000;	
+				z-index: 10000;
 			}
 			#eggstats_dashboard {
 				position: fixed;
